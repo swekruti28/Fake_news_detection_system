@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fake News Detector</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 50px;
+        }
+
+        .container {
+            margin-top: 40px;
+        }
+
+        textarea {
+            width: 60%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            background-color: #ff7eb3;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff4f91;
+        }
+
+        #result {
+            margin-top: 25px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>📰 Fake News Detection</h1>
+
+    <div class="container">
+        <textarea id="news" rows="6" placeholder="Enter news text here..."></textarea>
+        <br>
+        <button onclick="predict()">Check News</button>
+
+        <h2 id="result"></h2>
+    </div>
+
+    <footer>
+        Built using NLP + Machine Learning
+    </footer>
+
+    <script>
+        async function predict() {
+            let news = document.getElementById("news").value.trim();
+
+            // Empty input check
+            if (news === "") {
+                document.getElementById("result").innerText = "⚠️ Please enter some news text.";
+                document.getElementById("result").style.color = "yellow";
+                return;
+            }
+
+            // Loading message
+            document.getElementById("result").innerText = "⏳ Checking...";
+            document.getElementById("result").style.color = "white";
+
+            try {
+                let response = await fetch("http://127.0.0.1:8000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ news: news })
+                });
+
+                let data = await response.json();
+
+                // Show result
+                document.getElementById("result").innerText = data.prediction;
+
+                // Color result
+                if (data.prediction === "Fake News") {
+                    document.getElementById("result").style.color = "red";
+                } else {
+                    document.getElementById("result").style.color = "lightgreen";
+                }
+
+            } catch (error) {
+                document.getElementById("result").innerText = "❌ Server error. Please try again.";
+                document.getElementById("result").style.color = "orange";
+                console.error(error);
+            }
+        }
+    </script>
+
+</body>
+</html>
